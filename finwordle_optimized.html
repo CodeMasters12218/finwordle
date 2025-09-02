@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💎 WORDLE Koreli</title>
+    
+    <!-- Meta tags para compartir en redes sociales -->
+    <meta property="og:title" content="💎 WORDLE Koreli - Domina las finanzas jugando">
+    <meta property="og:description" content="Juego de palabras financieras tipo Wordle. ¡Mejora tu vocabulario financiero jugando!">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://finwordle.netlify.app">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="description" content="Wordle financiero - Aprende términos de finanzas jugando">
+    
+    <style>
+        :root {
+            --coral: #FF6B6B;
+            --coral-light: #FF8E8E;
+            --coral-dark: #E55555;
+            --red: #DC2626;
+            --beige: #F5F5DC;
+            --beige-dark: #E6E6CD;
+            --green: #10B981;
+            --yellow: #F59E0B;
+            --gray: #6B7280;
+            --dark-gray: #374151;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, var(--beige) 0%, var(--beige-dark) 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--coral);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--dark-gray);
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .day {
+            background: var(--coral);
+            color: var(--white);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .hint-container {
+            background: var(--white);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--coral);
+        }
+
+        .hint-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .hint-text {
+            color: var(--dark-gray);
+            font-size: 1rem;
+            font-style: italic;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            background: var(--white);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat {
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--coral);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--dark-gray);
+            margin-top: 5px;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-rows: repeat(6, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            border: 3px solid var(--coral-light);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--dark-gray);
+            background: var(--white);
+            transition: all 0.3s ease;
+        }
+
+        .cell.filled {
+            border-color: var(--coral);
+            background: var(--white);
+            transform: scale(1.05);
+        }
+
+        .cell.correct {
+            background: var(--green);
+            color: var(--white);
+            border-color: var(--green);
+        }
+
+        .cell.partial {
+            background: var(--yellow);
+            color: var(--white);
+            border-color: var(--yellow);
+        }
+
+        .cell.incorrect {
+            background: var(--gray);
+            color: var(--white);
+            border-color: var(--gray);
+        }
+
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .word-input {
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            border: 3px solid var(--coral-light);
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+            text-transform: uppercase;
+            background: var(--white);
+            color: var(--dark-gray);
+            outline: none;
+        }
+
+        .word-input:focus {
+            border-color: var(--coral);
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, var(--coral), var(--coral-dark));
+            color: var(--white);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+            text-align: center;
+            min-width: 300px;
+            transition: all 0.3s ease;
+        }
+
+        .message.success {
+            background: var(--green);
+            color: var(--white);
+        }
+
+        .message.error {
+            background: var(--red);
+            color: var(--white);
+        }
+
+        .message.info {
+            background: var(--coral-light);
+            color: var(--white);
+        }
+
+        .share-btn {
+            background: linear-gradient(135deg, var(--red), #B91C1C);
+            color: var(--white);
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .share-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+        }
+
+        .new-game-btn {
+            background: linear-gradient(135deg, var(--green), #059669);
+            color: var(--white);
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .new-game-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .stats {
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .cell {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
+            }
+            
+            .word-input {
+                width: 250px;
+                font-size: 1.1rem;
+            }
+
+            .hint-container {
+                margin: 0 10px 20px 10px;
+                padding: 12px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">💎 WORDLE Koreli</h1>
+        <p class="subtitle">Domina las finanzas jugando</p>
+        <span class="day">Día #<span id="dayNumber">1</span></span>
+    </div>
+
+    <div class="hint-container">
+        <div class="hint-label">💡 PISTA:</div>
+        <div class="hint-text" id="gameHint">Cargando pista...</div>
+    </div>
+
+    <div class="stats">
+        <div class="stat">
+            <div class="stat-number" id="attempts">0</div>
+            <div class="stat-label">Intentos</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number" id="games">0</div>
+            <div class="stat-label">Partidas</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number" id="winRate">0%</div>
+            <div class="stat-label">% Éxito</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number" id="streak">0</div>
+            <div class="stat-label">Racha</div>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <div class="grid" id="gameGrid">
+            <!-- Grid generado dinámicamente -->
+        </div>
+
+        <div class="input-container">
+            <input 
+                type="text" 
+                class="word-input" 
+                id="wordInput" 
+                placeholder="ESCRIBE TU PALABRA..."
+                maxlength="5"
+                autocomplete="off"
+            >
+            <button class="submit-btn" id="submitBtn">Intentar</button>
+        </div>
+
+        <div class="message hidden" id="gameMessage"></div>
+        <div id="gameButtons" class="hidden">
+            <button class="share-btn" id="shareBtn">📱 Compartir en Stories</button>
+            <button class="new-game-btn" id="newGameBtn">🎮 Nuevo Juego</button>
+        </div>
+    </div>
+
+    <script>
+        // Analytics
+        (function() {
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = 'https://www.googletagmanager.com/gtag/js?id=G-KORELI123';
+            document.head.appendChild(script);
+            
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-KORELI123');
+        })();
+
+        // Palabras financieras con pistas mejoradas
+        const WORDS_WITH_HINTS = [
+            { word: 'BONOS', hint: 'Título de deuda que paga intereses fijos periódicamente' },
+            { word: 'RENTA', hint: 'Ingresos regulares generados por una inversión' },
+            { word: 'FOREX', hint: 'Mercado global de intercambio de divisas' },
+            { word: 'TRADE', hint: 'Operación de compra y venta de activos financieros' },
+            { word: 'STOCK', hint: 'Acciones que representan propiedad en una empresa' },
+            { word: 'PRIMA', hint: 'Sobreprecio pagado sobre el valor nominal' },
+            { word: 'YIELD', hint: 'Rendimiento anual expresado como porcentaje' },
+            { word: 'FONDO', hint: 'Vehículo de inversión que agrupa dinero de múltiples inversores' },
+            { word: 'VALOR', hint: 'Precio de mercado de un activo o instrumento financiero' },
+            { word: 'DEUDA', hint: 'Obligación financiera pendiente de pago' },
+            { word: 'EUROS', hint: 'Moneda oficial de la zona euro europea' },
+            { word: 'GASTO', hint: 'Desembolso de dinero para adquirir bienes o servicios' },
+            { word: 'HEDGE', hint: 'Estrategia para protegerse de riesgos financieros' },
+            { word: 'INDEX', hint: 'Indicador que mide el desempeño de un conjunto de valores' },
+            { word: 'MACRO', hint: 'Análisis económico que estudia agregados nacionales' },
+            { word: 'RATIO', hint: 'Relación matemática entre dos magnitudes financieras' },
+            { word: 'SWAPS', hint: 'Contratos de intercambio de flujos de efectivo' },
+            { word: 'BANCA', hint: 'Sector que ofrece servicios financieros y crediticios' },
+            { word: 'DIVID', hint: 'Parte de beneficios distribuida a accionistas' },
+            { word: 'METAL', hint: 'Activo físico refugio como oro, plata o platino' }
+        ];
+
+        let currentWord = '';
+        let currentHint = '';
+        let currentRow = 0;
+        let gameOver = false;
+        let stats = JSON.parse(localStorage.getItem('wordleKoreliStats') || '{"attempts": 0, "games": 0, "wins": 0, "streak": 0, "currentStreak": 0}');
+
+        // Elementos DOM
+        const gameGrid = document.getElementById('gameGrid');
+        const wordInput = document.getElementById('wordInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const gameMessage = document.getElementById('gameMessage');
+        const shareBtn = document.getElementById('shareBtn');
+        const newGameBtn = document.getElementById('newGameBtn');
+        const gameButtons = document.getElementById('gameButtons');
+
+        // Función para obtener la palabra del día
+        function getDailyWord() {
+            const today = new Date();
+            const startDate = new Date('2024-01-01');
+            const dayNumber = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+            
+            // Usar el número de día como seed para seleccionar siempre la misma palabra
+            const wordIndex = dayNumber % WORDS_WITH_HINTS.length;
+            return {
+                word: WORDS_WITH_HINTS[wordIndex],
+                dayNumber: dayNumber + 1
+            };
+        }
+
+        // Función para verificar si ya jugó hoy
+        function hasPlayedToday() {
+            const lastPlayed = localStorage.getItem('wordleKoreliLastPlayed');
+            const today = new Date().toDateString();
+            return lastPlayed === today;
+        }
+
+        // Función para marcar como jugado hoy
+        function markPlayedToday() {
+            const today = new Date().toDateString();
+            localStorage.setItem('wordleKoreliLastPlayed', today);
+        }
+
+        function initGame() {
+            // Obtener palabra del día
+            const dailyData = getDailyWord();
+            const wordData = dailyData.word;
+            currentWord = wordData.word.toUpperCase();
+            currentHint = wordData.hint;
+            
+            // Actualizar número de día
+            document.getElementById('dayNumber').textContent = dailyData.dayNumber;
+            
+            // Verificar si ya jugó hoy
+            const alreadyPlayed = hasPlayedToday();
+            
+            if (alreadyPlayed) {
+                // Cargar estado del juego de hoy
+                loadTodaysGame();
+            } else {
+                // Nuevo juego del día
+                startNewDailyGame();
+            }
+            
+            // Mostrar pista
+            document.getElementById('gameHint').textContent = currentHint;
+            
+            console.log('Palabra del día:', currentWord, '- Día #' + dailyData.dayNumber);
+
+            // Analytics - Inicio de juego
+            gtag('event', 'game_start', {
+                'custom_parameter': 'wordle_koreli_daily',
+                'day_number': dailyData.dayNumber
+            });
+        }
+
+        function startNewDailyGame() {
+            // Reset game state para nuevo juego
+            currentRow = 0;
+            gameOver = false;
+            gameMessage.classList.add('hidden');
+            gameButtons.classList.add('hidden');
+            wordInput.disabled = false;
+            submitBtn.disabled = false;
+            
+            // Crear grid limpio
+            createGrid();
+            updateStats();
+            
+            // Focus en input
+            wordInput.focus();
+            
+            // Limpiar estado del día anterior
+            localStorage.removeItem('wordleKoreliTodayState');
+        }
+
+        function loadTodaysGame() {
+            const todayState = localStorage.getItem('wordleKoreliTodayState');
+            
+            if (todayState) {
+                const state = JSON.parse(todayState);
+                currentRow = state.currentRow;
+                gameOver = state.gameOver;
+                
+                // Recrear grid con estado guardado
+                createGrid();
+                
+                // Recrear intentos previos
+                state.attempts.forEach((attempt, rowIndex) => {
+                    displayGuess(attempt.guess, rowIndex, attempt.results, false);
+                });
+                
+                if (gameOver) {
+                    // Juego ya terminado
+                    wordInput.disabled = true;
+                    submitBtn.disabled = true;
+                    gameButtons.classList.remove('hidden');
+                    
+                    if (state.won) {
+                        showMessage('Ya completaste el Wordle de hoy! 🎉', 'success');
+                    } else {
+                        showMessage(`Juego completado. La palabra era: ${currentWord}`, 'info');
+                    }
+                } else {
+                    // Juego en progreso
+                    wordInput.disabled = false;
+                    submitBtn.disabled = false;
+                    wordInput.focus();
+                    showMessage(`Continuando partida... ${currentRow + 1}/6`, 'info');
+                }
+            } else {
+                // No hay estado guardado, pero ya jugó hoy (edge case)
+                startNewDailyGame();
+            }
+            
+            updateStats();
+        }
+
+        // Función para guardar estado del juego actual
+        function saveTodaysGame() {
+            const attempts = [];
+            
+            for (let i = 0; i <= currentRow; i++) {
+                const guess = getRowGuess(i);
+                if (guess) {
+                    const results = getRowResults(i);
+                    attempts.push({
+                        guess: guess,
+                        results: results
+                    });
+                }
+            }
+            
+            const state = {
+                currentRow: currentRow,
+                gameOver: gameOver,
+                won: gameOver && (currentRow < 6),
+                attempts: attempts
+            };
+            
+            localStorage.setItem('wordleKoreliTodayState', JSON.stringify(state));
+        }
+
+        // Funciones auxiliares para recuperar estado del grid
+        function getRowGuess(rowIndex) {
+            let guess = '';
+            for (let i = 0; i < 5; i++) {
+                const cell = document.getElementById(`cell-${rowIndex}-${i}`);
+                if (cell && cell.textContent) {
+                    guess += cell.textContent;
+                }
+            }
+            return guess.length === 5 ? guess : null;
+        }
+
+        function getRowResults(rowIndex) {
+            const results = [];
+            for (let i = 0; i < 5; i++) {
+                const cell = document.getElementById(`cell-${rowIndex}-${i}`);
+                if (cell) {
+                    if (cell.classList.contains('correct')) results.push('correct');
+                    else if (cell.classList.contains('partial')) results.push('partial');
+                    else if (cell.classList.contains('incorrect')) results.push('incorrect');
+                    else results.push('empty');
+                }
+            }
+            return results;
+        }
+
+        function createGrid() {
+            gameGrid.innerHTML = '';
+            for (let i = 0; i < 6; i++) {
+                const row = document.createElement('div');
+                row.className = 'row';
+                row.id = `row-${i}`;
+                
+                for (let j = 0; j < 5; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.id = `cell-${i}-${j}`;
+                    row.appendChild(cell);
+                }
+                
+                gameGrid.appendChild(row);
+            }
+        }
+
+        function handleInput(e) {
+            e.target.value = e.target.value.toUpperCase().replace(/[^A-Z]/g, '');
+        }
+
+        function submitGuess() {
+            if (gameOver) return;
+            
+            const guess = wordInput.value.trim().toUpperCase();
+            
+            if (guess.length !== 5) {
+                showMessage('La palabra debe tener 5 letras', 'error');
+                wordInput.focus();
+                return;
+            }
+
+            // Deshabilitar input temporalmente
+            submitBtn.disabled = true;
+            
+            // Incrementar intentos
+            stats.attempts++;
+            
+            // Mostrar guess en el grid
+            displayGuess(guess, currentRow);
+            
+            // Verificar resultado después de la animación
+            setTimeout(() => {
+                if (guess === currentWord) {
+                    showMessage('¡Excelente! 🎉 Palabra correcta', 'success');
+                    gameOver = true;
+                    stats.wins++;
+                    stats.currentStreak++;
+                    if (stats.currentStreak > stats.streak) {
+                        stats.streak = stats.currentStreak;
+                    }
+                    
+                    // Marcar como jugado hoy y guardar estado
+                    markPlayedToday();
+                    saveTodaysGame();
+                    
+                    // Analytics - Victoria
+                    gtag('event', 'game_win', {
+                        'attempts': currentRow + 1,
+                        'word': currentWord,
+                        'daily_game': true
+                    });
+                    
+                    endGame(true);
+                } else if (currentRow === 5) {
+                    showMessage(`La palabra era: ${currentWord} 😔`, 'error');
+                    gameOver = true;
+                    stats.currentStreak = 0;
+                    
+                    // Marcar como jugado hoy y guardar estado
+                    markPlayedToday();
+                    saveTodaysGame();
+                    
+                    // Analytics - Derrota
+                    gtag('event', 'game_lose', {
+                        'word': currentWord,
+                        'final_guess': guess,
+                        'daily_game': true
+                    });
+                    
+                    endGame(false);
+                } else {
+                    currentRow++;
+                    showMessage(`Intento ${currentRow + 1}/6`, 'info');
+                    submitBtn.disabled = false;
+                    wordInput.focus();
+                    
+                    // Guardar progreso
+                    saveTodaysGame();
+                }
+
+                if (gameOver) {
+                    stats.games++;
+                    saveStats();
+                }
+                
+                updateStats();
+            }, 500);
+            
+            wordInput.value = '';
+        }
+
+        function endGame(won) {
+            wordInput.disabled = true;
+            submitBtn.disabled = true;
+            gameButtons.classList.remove('hidden');
+        }
+
+        function displayGuess(guess, row, predefinedResults = null, animate = true) {
+            const letters = guess.split('');
+            let result = predefinedResults;
+            
+            if (!result) {
+                // Calcular resultado si no está predefinido
+                const targetLetters = currentWord.split('');
+                result = new Array(5).fill('incorrect');
+                const usedTargetPositions = new Set();
+                const usedGuessPositions = new Set();
+
+                // Primera pasada: marcar letras correctas (verde)
+                for (let i = 0; i < 5; i++) {
+                    if (letters[i] === targetLetters[i]) {
+                        result[i] = 'correct';
+                        usedTargetPositions.add(i);
+                        usedGuessPositions.add(i);
+                    }
+                }
+
+                // Segunda pasada: marcar letras parciales (amarillo)
+                for (let i = 0; i < 5; i++) {
+                    if (!usedGuessPositions.has(i)) {
+                        for (let j = 0; j < 5; j++) {
+                            if (!usedTargetPositions.has(j) && letters[i] === targetLetters[j]) {
+                                result[i] = 'partial';
+                                usedTargetPositions.add(j);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Mostrar en el grid
+            letters.forEach((letter, index) => {
+                const cell = document.getElementById(`cell-${row}-${index}`);
+                if (cell) {
+                    cell.textContent = letter;
+                    cell.className = `cell filled`;
+                    
+                    if (animate) {
+                        setTimeout(() => {
+                            cell.className = `cell ${result[index]}`;
+                        }, 100 * index);
+                    } else {
+                        cell.className = `cell ${result[index]}`;
+                    }
+                }
+            });
+        }
+
+        function showMessage(text, type) {
+            gameMessage.textContent = text;
+            gameMessage.className = `message ${type}`;
+            gameMessage.classList.remove('hidden');
+            
+            if (type === 'info') {
+                setTimeout(() => {
+                    gameMessage.classList.add('hidden');
+                }, 2000);
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('attempts').textContent = stats.attempts;
+            document.getElementById('games').textContent = stats.games;
+            document.getElementById('winRate').textContent = 
+                stats.games > 0 ? Math.round((stats.wins / stats.games) * 100) + '%' : '0%';
+            document.getElementById('streak').textContent = stats.streak;
+        }
+
+        function saveStats() {
+            localStorage.setItem('wordleKoreliStats', JSON.stringify(stats));
+        }
+
+        function shareResults() {
+            const won = gameOver && (currentRow < 6 || (currentRow === 6 && getRowGuess(5) === currentWord));
+            const attempts = won ? currentRow + 1 : 'X';
+            const dayNumber = document.getElementById('dayNumber').textContent;
+            
+            // Crear grid visual con emojis
+            let gridEmojis = '';
+            for (let i = 0; i <= Math.min(currentRow, 5); i++) {
+                const results = getRowResults(i);
+                for (let j = 0; j < 5; j++) {
+                    if (results[j] === 'correct') gridEmojis += '🟩';
+                    else if (results[j] === 'partial') gridEmojis += '🟨';
+                    else if (results[j] === 'incorrect') gridEmojis += '⬜';
+                }
+                gridEmojis += '\n';
+            }
+            
+            const resultText = `💎 WORDLE Koreli #${dayNumber} ${attempts}/6\n\n${gridEmojis}\nDomina las finanzas jugando 📈\nhttps://finwordle.netlify.app`;
+
+            // Analytics - Share
+            gtag('event', 'share', {
+                'method': 'web_share',
+                'content_type': 'game_result',
+                'word': currentWord,
+                'won': won,
+                'day': dayNumber
+            });
+
+            if (navigator.share) {
+                navigator.share({
+                    title: `WORDLE Koreli #${dayNumber}`,
+                    text: resultText,
+                    url: 'https://finwordle.netlify.app'
+                }).catch(() => {
+                    fallbackShare(resultText);
+                });
+            } else {
+                fallbackShare(resultText);
+            }
+        }
+
+        function fallbackShare(text) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showMessage('¡Resultado copiado! Pégalo en Stories 📱', 'success');
+                }).catch(() => {
+                    showMessage('Error al copiar. Intenta manualmente', 'error');
+                });
+            } else {
+                showMessage('Comparte manualmente: finwordle.netlify.app', 'info');
+            }
+        }
+
+        function newGame() {
+            const alreadyPlayed = hasPlayedToday();
+            
+            if (alreadyPlayed) {
+                showMessage('¡Ya jugaste hoy! Vuelve mañana para una nueva palabra 🗓️', 'info');
+                return;
+            }
+            
+            // Analytics - Nuevo juego
+            gtag('event', 'new_game', {
+                'custom_parameter': 'manual_restart'
+            });
+            
+            initGame();
+        }
+
+        // Event listeners
+        function setupEventListeners() {
+            wordInput.addEventListener('input', handleInput);
+            submitBtn.addEventListener('click', submitGuess);
+            wordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !submitBtn.disabled) submitGuess();
+            });
+            shareBtn.addEventListener('click', shareResults);
+            newGameBtn.addEventListener('click', newGame);
+        }
+
+        // Inicializar juego
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            initGame();
+        });
+    </script>
+</body>
+</html>
